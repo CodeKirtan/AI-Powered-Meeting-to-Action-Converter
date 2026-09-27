@@ -1,0 +1,2267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ActionPulse — Throw-Away Prototype (Meeting-to-Action Converter)</title>
+<style>
+  :root {
+    --bg: #FAF9F6;
+    --card: #FFFFFF;
+    --border: #E4E1D8;
+    --border-strong: #CFCBBC;
+    --text: #2C2C2A;
+    --text-secondary: #6B6A63;
+    --text-muted: #9A9890;
+    --accent: #3B6D11;
+    --accent-bg: #EAF3DE;
+    --accent-text: #27500A;
+    --warn: #854F0B;
+    --warn-bg: #FAEEDA;
+    --warn-text: #633806;
+    --danger: #A32D2D;
+    --danger-bg: #FCEBEB;
+    --danger-text: #791F1F;
+    --info-bg: #E6F0FA;
+    --info-text: #0E4E80;
+    --info: #1877F2;
+    --whatsapp-green: #25D366;
+    --whatsapp-dark: #075E54;
+    --slack-purple: #4A154B;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-lg: 14px;
+    --shadow: 0 2px 10px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1C1C1A;
+      --card: #242422;
+      --border: #3A3A36;
+      --border-strong: #4C4C46;
+      --text: #ECEAE3;
+      --text-secondary: #B4B2A9;
+      --text-muted: #85847C;
+      --accent: #97C459;
+      --accent-bg: #173404;
+      --accent-text: #C0DD97;
+      --warn: #F0997B;
+      --warn-bg: #412402;
+      --warn-text: #FAC775;
+      --danger: #F09595;
+      --danger-bg: #501313;
+      --danger-text: #F7C1C1;
+      --info-bg: #0C2842;
+      --info-text: #96CBFF;
+      --info: #388BFD;
+      --shadow: 0 2px 10px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #1C1C1A;
+    --card: #242422;
+    --border: #3A3A36;
+    --border-strong: #4C4C46;
+    --text: #ECEAE3;
+    --text-secondary: #B4B2A9;
+    --text-muted: #85847C;
+    --accent: #97C459;
+    --accent-bg: #173404;
+    --accent-text: #C0DD97;
+    --warn: #F0997B;
+    --warn-bg: #412402;
+    --warn-text: #FAC775;
+    --danger: #F09595;
+    --danger-bg: #501313;
+    --danger-text: #F7C1C1;
+    --info-bg: #0C2842;
+    --info-text: #96CBFF;
+    --info: #388BFD;
+    --shadow: 0 2px 10px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  :root[data-theme="light"] {
+    --bg: #FAF9F6;
+    --card: #FFFFFF;
+    --border: #E4E1D8;
+    --border-strong: #CFCBBC;
+    --text: #2C2C2A;
+    --text-secondary: #6B6A63;
+    --text-muted: #9A9890;
+    --accent: #3B6D11;
+    --accent-bg: #EAF3DE;
+    --accent-text: #27500A;
+    --warn: #854F0B;
+    --warn-bg: #FAEEDA;
+    --warn-text: #633806;
+    --danger: #A32D2D;
+    --danger-bg: #FCEBEB;
+    --danger-text: #791F1F;
+    --info-bg: #E6F0FA;
+    --info-text: #0E4E80;
+    --info: #1877F2;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  /* Global Top Navigation */
+  header.global-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+  }
+  .brand-badge {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .nav-tools {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg);
+    cursor: pointer;
+  }
+  .avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* Stepper Bar */
+  .stepper-container {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+    overflow-x: auto;
+  }
+  .stepper {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .step-node {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .step-node:hover {
+    background: var(--bg);
+    color: var(--text);
+  }
+  .step-node.active {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+  .step-node.completed {
+    color: var(--text-secondary);
+  }
+  .step-num {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    background: var(--border);
+    color: var(--text);
+  }
+  .step-node.active .step-num {
+    background: var(--accent);
+    color: #ffffff;
+  }
+  .step-node.completed .step-num {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+  }
+  .step-divider {
+    color: var(--border-strong);
+    font-size: 10px;
+  }
+
+  /* Main Container */
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+
+  /* Banner */
+  .prototype-banner {
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid rgba(133, 79, 11, 0.2);
+  }
+  .banner-close {
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    opacity: 0.7;
+  }
+  .banner-close:hover { opacity: 1; }
+
+  /* Requirements Alignment Panel */
+  .fr-pill-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    background: var(--info-bg);
+    color: var(--info-text);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    margin-bottom: 20px;
+    border-left: 3px solid var(--info);
+  }
+  .fr-tag {
+    background: rgba(24, 119, 242, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  /* Screen Views */
+  .screen-view {
+    display: none;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+  .screen-view.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Typography */
+  .eyebrow {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  .sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 24px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    transition: all 0.2s ease;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  /* Buttons */
+  button, .btn {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.12s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+  button:hover, .btn:hover {
+    border-color: var(--text-secondary);
+    background: var(--bg);
+  }
+  button:active, .btn:active {
+    transform: scale(0.98);
+  }
+  button.primary, .btn.primary {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+  button.primary:hover, .btn.primary:hover {
+    opacity: 0.9;
+  }
+  button.accent, .btn.accent {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    border-color: var(--accent);
+  }
+  button.approve {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  button.reject {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    border-color: var(--danger);
+  }
+  button.ghost {
+    background: transparent;
+    border-color: transparent;
+  }
+  button.ghost:hover {
+    background: var(--bg);
+  }
+  button:disabled, .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Form Elements */
+  .form-group {
+    margin-bottom: 18px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .form-group .hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"], select, textarea {
+    width: 100%;
+    font-size: 14px;
+    padding: 9px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    font-family: inherit;
+    transition: border 0.15s ease;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-bg);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 140px;
+    line-height: 1.5;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+  }
+
+  /* Tags / Badges */
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .badge.high { background: var(--accent-bg); color: var(--accent-text); }
+  .badge.low { background: var(--warn-bg); color: var(--warn-text); }
+  .badge.priority-high { background: var(--danger-bg); color: var(--danger-text); }
+  .badge.priority-medium { background: var(--warn-bg); color: var(--warn-text); }
+  .badge.priority-low { background: var(--info-bg); color: var(--info-text); }
+
+  /* Pill Buttons / Filters */
+  .pill-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .pill-btn {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+  }
+  .pill-btn.active {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+
+  /* Toast Notification */
+  #toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+  .toast {
+    pointer-events: auto;
+    background: var(--text);
+    color: var(--bg);
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastIn 0.25s ease forwards;
+  }
+  @keyframes toastIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Progress Simulation */
+  .ai-progress-box {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .spinner-ring {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .pipeline-steps {
+    max-width: 420px;
+    margin: 24px auto 0;
+    text-align: left;
+  }
+  .pipe-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+  }
+  .pipe-step.done {
+    color: var(--accent-text);
+  }
+  .pipe-step.active {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .pipe-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+  .pipe-step.done .pipe-icon {
+    background: var(--accent);
+    color: #fff;
+  }
+  .pipe-step.active .pipe-icon {
+    background: var(--warn);
+    color: #fff;
+  }
+
+  /* Review Screen specifics */
+  .review-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .review-tab {
+    padding: 8px 16px;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .review-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .review-item-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .review-item-card.removing {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  .fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .source-quote {
+    font-size: 12px;
+    color: var(--text-muted);
+    border-left: 2px solid var(--border-strong);
+    padding-left: 8px;
+    margin-bottom: 14px;
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  /* Kanban Board (Task Board) */
+  .kanban-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  @media (max-width: 850px) {
+    .kanban-grid {
+      grid-template-columns: 1fr;
+    }
+    .fields-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .kanban-col {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+  }
+  .kanban-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .kanban-title {
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .kanban-count {
+    font-size: 11px;
+    background: var(--border);
+    color: var(--text-secondary);
+    padding: 2px 6px;
+    border-radius: 12px;
+  }
+  .kanban-tasks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .task-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    cursor: grab;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .task-card:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+  }
+  .task-card.dragging {
+    opacity: 0.5;
+  }
+  .task-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+
+  /* Phone Simulator (WhatsApp Notification) */
+  .phone-frame {
+    max-width: 380px;
+    margin: 0 auto;
+    background: #000;
+    border-radius: 36px;
+    padding: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    border: 4px solid #222;
+  }
+  .phone-screen {
+    background: #EFEAE2;
+    border-radius: 26px;
+    overflow: hidden;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-header {
+    background: var(--whatsapp-dark);
+    color: #fff;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .chat-body {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .chat-bubble {
+    background: #fff;
+    border-radius: 8px;
+    border-top-left-radius: 0;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #111;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    max-width: 90%;
+    line-height: 1.4;
+    position: relative;
+  }
+  .chat-bubble.outbound {
+    background: #E7FFDB;
+    align-self: flex-end;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 0;
+  }
+  .chat-time {
+    font-size: 10px;
+    color: #888;
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  /* Bottom Inspector Drawer */
+  .bottom-inspector {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border-strong);
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.06);
+    z-index: 90;
+    transform: translateY(calc(100% - 38px));
+    transition: transform 0.25s ease;
+  }
+  .bottom-inspector.expanded {
+    transform: translateY(0);
+  }
+  .inspector-bar {
+    height: 38px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    cursor: pointer;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .inspector-content {
+    padding: 16px 20px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    font-size: 13px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  /* Utility classes */
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .mt-12 { margin-top: 12px; }
+  .mt-20 { margin-top: 20px; }
+  .text-muted { color: var(--text-muted); }
+  .text-sm { font-size: 12px; }
+  .w-100 { width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- GLOBAL NAVIGATION -->
+<header class="global-nav">
+  <div class="nav-inner">
+    <div class="brand" onclick="navigateTo(currentStep === 'step-login' ? 'step-login' : 'step-dashboard')">
+      <span>⚡ ActionPulse</span>
+      <span class="brand-badge">Throw-Away Prototype</span>
+    </div>
+
+    <div class="nav-tools">
+      <div class="user-pill" id="userPill" onclick="cycleUserRole()" title="Click to switch persona">
+        <div class="avatar" id="navAvatar">N</div>
+        <span id="navUserName">Neel (Project Lead)</span>
+        <span style="font-size:10px; color:var(--text-muted);">⇄</span>
+      </div>
+      <button class="ghost" onclick="toggleTheme()" title="Toggle Dark/Light theme" style="padding:6px 10px;">
+        <span id="themeIcon">🌓</span>
+      </button>
+      <button class="ghost" onclick="toggleInspector()" title="Requirements & Context">
+        📋 <span style="display:inline;" id="inspectorToggleText">FR Guide</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- STEPPER BAR -->
+<div class="stepper-container">
+  <div class="stepper" id="stepperNav">
+    <div class="step-node active" data-step="step-login" onclick="navigateTo('step-login')">
+      <span class="step-num">1</span> Login
+    </div>
+    <span class="step-divider">›</span>
+    <div class="step-node" data-step="step-dashboard" onclick="navigateTo('step-dashboard')">
+      <span class="step-num">2</span> Dashboard
+    </div>
+    <span class="step-divider">›</span>
+    <div class="step-node" data-step="step-create-meeting" onclick="navigateTo('step-create-meeting')">
+      <span class="step-num">3</span> Create Meeting
+    </div>
+    <span class="step-divider">›</span>
+    <div class="step-node" data-step="step-transcript" onclick="navigateTo('step-transcript')">
+      <span class="step-num">4</span> Transcript
+    </div>
+    <span class="step-divider">›</span>
+    <div class="step-node" data-step="step-processing" onclick="navigateTo('step-processing')">
+      <span class="step-num">5</span> AI Process
+    </div>
+    <span class="step-divider">›</span>
+    <div class="step-node" data-step="step-review" onclick="navigateTo('step-review')">
+      <span class="step-num">6</span> AI Review
+    </div>
+    <span class="step-divider">›</span>
+    <div class="step-node" data-step="step-taskboard" onclick="navigateTo('step-taskboard')">
+      <span class="step-num">7</span> Task Board
+    </div>
+    <span class="step-divider">›</span>
+    <div class="step-node" data-step="step-notifications" onclick="navigateTo('step-notifications')">
+      <span class="step-num">8</span> Notification
+    </div>
+  </div>
+</div>
+
+<!-- MAIN WRAPPER -->
+<div class="wrap">
+
+  <!-- Top Prototype Purpose Banner -->
+  <div class="prototype-banner" id="bannerTop">
+    <div>
+      <strong>Throw-Away Prototype Notice:</strong> Built to validate the critical user journey and clarify software requirements (IT314 course) before engineering the backend, LLM pipeline, and API integrations. Discardable once workflow requirements are confirmed.
+    </div>
+    <span class="banner-close" onclick="document.getElementById('bannerTop').style.display='none'">&times;</span>
+  </div>
+
+  <!-- Dynamic Functional Requirement Tag Bar -->
+  <div class="fr-pill-bar" id="frPillBar">
+    <span style="font-weight:700;">Requirements Validated:</span>
+    <span id="frListTags"></span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 1: LOGIN                            -->
+  <!-- ========================================== -->
+  <section class="screen-view active" id="step-login">
+    <div style="max-width: 440px; margin: 20px auto 0;">
+      <p class="eyebrow">Neel · Requirements & Flow</p>
+      <h1>Sign in to ActionPulse</h1>
+      <p class="sub">Choose a team role to validate permissions, ownership, and workflows.</p>
+
+      <div class="card">
+        <label style="font-size:12px; font-weight:600; color:var(--text-secondary); margin-bottom:8px; display:block;">
+          QUICK PERSONA SELECTOR:
+        </label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:18px;">
+          <button type="button" class="btn" onclick="selectPersona('Neel', 'Project Lead', 'N')" style="justify-content:flex-start; font-size:12px;">
+            👑 <strong>Neel</strong> (Lead)
+          </button>
+          <button type="button" class="btn" onclick="selectPersona('Kirtan', 'Meeting Organizer', 'K')" style="justify-content:flex-start; font-size:12px;">
+            📝 <strong>Kirtan</strong> (Organizer)
+          </button>
+          <button type="button" class="btn" onclick="selectPersona('Smit', 'Reviewer', 'S')" style="justify-content:flex-start; font-size:12px;">
+            🔍 <strong>Smit</strong> (Reviewer)
+          </button>
+          <button type="button" class="btn" onclick="selectPersona('Arnav', 'Task Assignee', 'A')" style="justify-content:flex-start; font-size:12px;">
+            🚀 <strong>Arnav</strong> (Assignee)
+          </button>
+        </div>
+
+        <form onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="loginEmail" value="neel@actionpulse.test" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" value="••••••••" required>
+            <div class="hint">Prototype mode: any mock password proceeds.</div>
+          </div>
+          <button type="submit" class="primary w-100" style="padding:10px;">
+            Enter Dashboard →
+          </button>
+        </form>
+      </div>
+
+      <div style="text-align:center; font-size:12px; color:var(--text-muted);">
+        Team: <strong>Neel</strong> (Overall Flow), <strong>Kirtan</strong> (Meeting/Input), <strong>Smit</strong> (AI Review), <strong>Arnav</strong> (Board/Approval).
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 2: DASHBOARD                        -->
+  <!-- ========================================== -->
+  <section class="screen-view" id="step-dashboard">
+    <div class="flex-between" style="margin-bottom:12px; flex-wrap:wrap; gap:12px;">
+      <div>
+        <p class="eyebrow">Neel · Requirements & Flow</p>
+        <h1 id="dashGreeting">Welcome, Neel!</h1>
+        <p class="sub" style="margin-bottom:0;">Turn meeting discussions into clearly assigned, trackable, and actionable work.</p>
+      </div>
+      <div>
+        <button class="primary" onclick="navigateTo('step-create-meeting')">
+          + Create New Meeting
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Metrics (clickable mocks) -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap:12px; margin:20px 0;">
+      <div class="card" style="margin-bottom:0; padding:16px;">
+        <span class="text-sm text-muted">Meetings Processed</span>
+        <div style="font-size:24px; font-weight:700; margin:4px 0;">3</div>
+        <span class="text-sm" style="color:var(--accent-text);">● Centralized record (FR-02)</span>
+      </div>
+      <div class="card" style="margin-bottom:0; padding:16px; border-color:var(--warn);">
+        <span class="text-sm text-muted">Pending AI Review</span>
+        <div style="font-size:24px; font-weight:700; color:var(--warn); margin:4px 0;">1 meeting</div>
+        <span class="text-sm" style="color:var(--warn-text);">4 suggested actions</span>
+      </div>
+      <div class="card" style="margin-bottom:0; padding:16px;">
+        <span class="text-sm text-muted">Active Board Tasks</span>
+        <div style="font-size:24px; font-weight:700; margin:4px 0;" id="dashActiveTasksCount">6</div>
+        <span class="text-sm text-muted">Synced across team (FR-16)</span>
+      </div>
+      <div class="card" style="margin-bottom:0; padding:16px;">
+        <span class="text-sm text-muted">WhatsApp Reminders</span>
+        <div style="font-size:24px; font-weight:700; color:var(--whatsapp-dark); margin:4px 0;">4 dispatched</div>
+        <span class="text-sm" style="color:var(--accent-text);">No missed deadlines (FR-20)</span>
+      </div>
+    </div>
+
+    <!-- Urgent Review Banner -->
+    <div class="card" style="border-left: 4px solid var(--warn); background:var(--warn-bg); color:var(--warn-text); padding:16px; margin-bottom:20px;">
+      <div class="flex-between" style="flex-wrap:wrap; gap:10px;">
+        <div>
+          <strong style="display:block; font-size:14px;">⚠️ Meeting Ready for Review: "Weekly Engineering Sync"</strong>
+          <span style="font-size:12px; opacity:0.9;">AI extracted 4 tasks (2 high confidence, 2 requiring human confirmation).</span>
+        </div>
+        <button class="btn" style="background:#fff; color:#222; border:none; font-weight:600;" onclick="navigateTo('step-review')">
+          Review 4 Tasks Now →
+        </button>
+      </div>
+    </div>
+
+    <!-- Meetings List -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Recent Meetings</h3>
+        <button class="ghost text-sm" onclick="navigateTo('step-create-meeting')">+ New</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border); color:var(--text-muted);">
+              <th style="padding:8px 6px;">Meeting Title</th>
+              <th style="padding:8px 6px;">Date</th>
+              <th style="padding:8px 6px;">Organizer</th>
+              <th style="padding:8px 6px;">Actions Extracted</th>
+              <th style="padding:8px 6px;">Status</th>
+              <th style="padding:8px 6px; text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:10px 6px;"><strong>Weekly Engineering Sync</strong></td>
+              <td style="padding:10px 6px;">Today, 10:00 AM</td>
+              <td style="padding:10px 6px;">Kirtan</td>
+              <td style="padding:10px 6px;"><span class="badge high">4 items</span></td>
+              <td style="padding:10px 6px;"><span class="badge low">Needs Review</span></td>
+              <td style="padding:10px 6px; text-align:right;">
+                <button class="approve text-sm" onclick="navigateTo('step-review')">Review</button>
+              </td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:10px 6px;"><strong>TechFest Hackathon Logistics</strong></td>
+              <td style="padding:10px 6px;">Sept 22, 2026</td>
+              <td style="padding:10px 6px;">Arnav</td>
+              <td style="padding:10px 6px;"><span class="badge high">6 items</span></td>
+              <td style="padding:10px 6px;"><span class="badge high">Synced to Board</span></td>
+              <td style="padding:10px 6px; text-align:right;">
+                <button class="ghost text-sm" onclick="navigateTo('step-taskboard')">View Board</button>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:10px 6px;"><strong>Sponsorship & Budget Review</strong></td>
+              <td style="padding:10px 6px;">Sept 18, 2026</td>
+              <td style="padding:10px 6px;">Neel</td>
+              <td style="padding:10px 6px;"><span class="badge high">3 items</span></td>
+              <td style="padding:10px 6px;"><span class="badge high">Completed</span></td>
+              <td style="padding:10px 6px; text-align:right;">
+                <button class="ghost text-sm" onclick="navigateTo('step-taskboard')">View Board</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; margin-top:20px;">
+      <button class="ghost" onclick="navigateTo('step-login')">← Back to Login</button>
+      <button class="primary" onclick="navigateTo('step-create-meeting')">Start "Create Meeting" Flow →</button>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 3: CREATE MEETING                   -->
+  <!-- ========================================== -->
+  <section class="screen-view" id="step-create-meeting">
+    <p class="eyebrow">Kirtan · Meeting Creation & Input (FR-02)</p>
+    <h1>Create Meeting Record</h1>
+    <p class="sub">Set up meeting context so AI can accurately associate speakers, tasks, and deadlines.</p>
+
+    <div class="card">
+      <form onsubmit="handleCreateMeetingSubmit(event)">
+        <div class="form-group">
+          <label for="meetingTitle">Meeting Title *</label>
+          <input type="text" id="meetingTitle" value="Weekly Engineering Sync — Sprint 3 Planning" required>
+          <div class="hint">Will be linked to all extracted action items in the database (FR-02).</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="form-group">
+            <label for="meetingDate">Meeting Date & Time *</label>
+            <input type="datetime-local" id="meetingDate" value="2026-09-26T10:00" required>
+          </div>
+          <div class="form-group">
+            <label for="meetingTeam">Team / Student Club *</label>
+            <select id="meetingTeam">
+              <option value="IT314 Capstone Team">IT314 Capstone Team (SwE)</option>
+              <option value="Web Development Club">Web Development Club</option>
+              <option value="Robotics Project Team">Robotics Project Team</option>
+              <option value="Core Committee">Core Committee</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Meeting Attendees (for AI task owner resolution)</label>
+          <div class="pill-group" id="attendeesList">
+            <span class="pill-btn active">👤 John (Frontend)</span>
+            <span class="pill-btn active">👤 Priya (Backend)</span>
+            <span class="pill-btn active">👤 Arnav (Design)</span>
+            <span class="pill-btn active">👤 Smit (QA)</span>
+            <span class="pill-btn active">👤 Kirtan (Organizer)</span>
+            <span class="pill-btn active">👤 Neel (PM)</span>
+          </div>
+          <div class="hint">AI cross-references speaker names against this attendee roster (FR-04).</div>
+        </div>
+
+        <div class="form-group">
+          <label>Audio / Transcript Capture Mode</label>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:10px;">
+            <label style="border:1px solid var(--accent); background:var(--accent-bg); padding:10px; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px;">
+              <input type="radio" name="meetingMode" value="paste" checked>
+              <strong>Paste / Upload</strong>
+            </label>
+            <label style="border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px; opacity:0.8;">
+              <input type="radio" name="meetingMode" value="zoom">
+              Zoom Cloud (Mock)
+            </label>
+            <label style="border:1px solid var(--border); padding:10px; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; display:flex; align-items:center; gap:8px; opacity:0.8;">
+              <input type="radio" name="meetingMode" value="gmeet">
+              Google Meet (Mock)
+            </label>
+          </div>
+        </div>
+
+        <div class="flex-between mt-20">
+          <button type="button" class="ghost" onclick="navigateTo('step-dashboard')">← Back to Dashboard</button>
+          <button type="submit" class="primary">Next: Paste Transcript Screen →</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 4: TRANSCRIPT INPUT                 -->
+  <!-- ========================================== -->
+  <section class="screen-view" id="step-transcript">
+    <p class="eyebrow">Kirtan · Transcript Input (FR-01, FR-24)</p>
+    <h1>Paste or Load Transcript</h1>
+    <p class="sub">Input raw meeting dialogue, audio notes, or use a sample preset to test AI extraction.</p>
+
+    <!-- Sample Presets (For instant demonstration without typing) -->
+    <div class="card" style="background:var(--bg); border:1px dashed var(--border-strong);">
+      <div class="flex-between" style="margin-bottom:8px;">
+        <strong style="font-size:13px;">Quick-Load Sample Transcripts (Click to populate):</strong>
+        <span class="text-sm text-muted">Test different edge cases</span>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="btn text-sm" onclick="loadTranscriptPreset('sprint')">
+          📋 Preset 1: Sprint Planning (Mixed Confidence)
+        </button>
+        <button type="button" class="btn text-sm" onclick="loadTranscriptPreset('hackathon')">
+          🎪 Preset 2: Hackathon Logistics (Multiple Owners)
+        </button>
+        <button type="button" class="btn text-sm" onclick="loadTranscriptPreset('ambiguous')">
+          ❓ Preset 3: Ambiguous Discussion (Unassigned / No Deadlines)
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <div class="flex-between" style="margin-bottom:6px;">
+          <label for="transcriptArea" style="margin-bottom:0;">Meeting Dialogue / Transcript *</label>
+          <span class="text-sm text-muted" id="wordCountLabel">184 words</span>
+        </div>
+        <textarea id="transcriptArea" placeholder="Paste meeting notes or conversation here...">Neel: Alright team, let's go over our deliverables for this upcoming milestone.
+
+John: I have the quarterly performance numbers almost calculated. 
+
+Neel: Great. John, can you pull together the quarterly report for the board meeting? It should be completely ready by Sept 30.
+
+John: Sure, I will have the draft ready by Sept 30 and email it.
+
+Priya: Regarding onboarding, the revised documentation draft is ready. 
+
+Neel: Priya, once it's proofread, please share the updated onboarding doc with new hires by Oct 3.
+
+Priya: Got it, Oct 3 deadline noted.
+
+Smit: Someone should probably follow up with the vendor about the delayed shipment of server parts, it's been a week and no update.
+
+Neel: Good catch. Let's make sure that vendor follow-up happens soon.
+
+Arnav: Also, we need a design review at some point for the dashboard revamp that I'm leading.
+
+Neel: Agreed, let's schedule that review session. Decision made: we stick to the 2-week sprint cadence.</textarea>
+      </div>
+
+      <div class="flex-between" style="margin-top:10px;">
+        <div class="text-sm text-muted">
+          <span>AI will extract: Actions, Owners, Deadlines, Priorities, Decisions.</span>
+        </div>
+        <div class="gap-8" style="display:flex;">
+          <button type="button" class="ghost" onclick="navigateTo('step-create-meeting')">← Back</button>
+          <button type="button" class="primary" onclick="startAIProcessing()" style="background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600;">
+            Process Transcript with AI ✨
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 5: AI PROCESSING SIMULATION        -->
+  <!-- ========================================== -->
+  <section class="screen-view" id="step-processing">
+    <p class="eyebrow">Neel & Smit · Extraction Pipeline (FR-03 to FR-10)</p>
+    <h1>Processing Meeting Dialogue</h1>
+    <p class="sub">Simulating GenAI pipeline: speaker diarization, action detection, confidence estimation.</p>
+
+    <div class="card ai-progress-box">
+      <div class="spinner-ring" id="procSpinner"></div>
+      <h3 style="margin:0 0 6px;" id="procTitle">Analyzing Meeting Transcript...</h3>
+      <p class="text-muted text-sm" id="procSubtitle">Identifying actionable commitments vs informational discussion</p>
+
+      <div class="pipeline-steps">
+        <div class="pipe-step done" id="pstep-1">
+          <div class="pipe-icon">✓</div>
+          <span>1. Speaker Diarization & Attendee Entity Matching (FR-04)</span>
+        </div>
+        <div class="pipe-step active" id="pstep-2">
+          <div class="pipe-icon">2</div>
+          <span>2. Action-Item Extraction vs Casual Talk (FR-03)</span>
+        </div>
+        <div class="pipe-step" id="pstep-3">
+          <div class="pipe-icon">3</div>
+          <span>3. Deadline & Priority Deduction (FR-05, FR-06)</span>
+        </div>
+        <div class="pipe-step" id="pstep-4">
+          <div class="pipe-icon">4</div>
+          <span>4. Uncertainty Detection & Confidence Scoring (FR-10)</span>
+        </div>
+      </div>
+
+      <div style="margin-top:30px;">
+        <button class="ghost text-sm" onclick="skipProcessingToReview()">
+          ⏩ Skip Animation to Review Screen
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 6: AI RESULTS / REVIEW SCREEN       -->
+  <!-- ========================================== -->
+  <section class="screen-view" id="step-review">
+    <p class="eyebrow">Smit · AI Results & Human Review (FR-11 to FR-15)</p>
+    <h1>Review Extracted Action Items</h1>
+    <p class="sub">Check each AI suggestion, resolve missing fields, adjust priorities, and approve or reject.</p>
+
+    <div class="meta-row" style="display:flex; gap:16px; font-size:13px; color:var(--text-secondary); margin-bottom:16px; flex-wrap:wrap;">
+      <span>Meeting: <b id="revMeetingName">Weekly Engineering Sync</b></span>
+      <span>Attendees: <b>6 people</b></span>
+      <span>Source: <b>2,140 words</b></span>
+    </div>
+
+    <!-- Review Tabs: Actions vs Decisions vs Questions -->
+    <div class="review-tabs">
+      <div class="review-tab active" onclick="switchReviewTab('actions')" id="tab-btn-actions">
+        Action Items (<span id="pending-count">4</span>)
+      </div>
+      <div class="review-tab" onclick="switchReviewTab('decisions')" id="tab-btn-decisions">
+        Key Decisions (1)
+      </div>
+      <div class="review-tab" onclick="switchReviewTab('questions')" id="tab-btn-questions">
+        Pending Questions (1)
+      </div>
+    </div>
+
+    <!-- TAB 1: ACTION ITEMS -->
+    <div id="tab-content-actions">
+      <div class="flex-between" style="margin-bottom:12px;">
+        <div style="font-size:13px; color:var(--text-muted);">
+          Items marked <span class="badge low">Low Confidence</span> require confirmation (FR-10).
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn text-sm" onclick="approveAllHighConfidence()">✓ Approve All High Conf</button>
+          <button class="btn text-sm" onclick="promptAddNewTask()">+ Add Task</button>
+        </div>
+      </div>
+
+      <!-- Pending Cards List -->
+      <div id="pending-list"></div>
+      <div id="empty-msg" class="empty" style="display:none; text-align:center; padding:30px; border:1px dashed var(--border-strong); border-radius:var(--radius); color:var(--text-muted); font-size:13px;">
+        🎉 All AI-extracted items have been reviewed! Click "Send Approved Items to Task Board" below.
+      </div>
+
+      <!-- Continue to Task Board Button -->
+      <button class="primary w-100" id="continue-btn" onclick="sendApprovedToTaskBoard()" style="margin-top:20px; padding:12px;" disabled>
+        Send Approved Items to Task Board (0 approved) →
+      </button>
+
+      <!-- Approved Summary Section -->
+      <div id="approved-section" style="margin-top:24px; display:none;">
+        <p class="eyebrow" style="color:var(--accent-text);">Ready for Sync (<span id="approved-count-label">0</span>)</p>
+        <div id="approved-list"></div>
+      </div>
+
+      <!-- Rejected Section -->
+      <div id="rejected-section" style="margin-top:16px; display:none;">
+        <p class="eyebrow" style="color:var(--danger-text);">Rejected / Discarded (<span id="rejected-count-label">0</span>)</p>
+        <div id="rejected-list"></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: KEY DECISIONS (FR-07) -->
+    <div id="tab-content-decisions" style="display:none;">
+      <div class="card" style="border-left:4px solid var(--accent);">
+        <div class="flex-between">
+          <strong style="font-size:14px;">Decision: Maintain 2-week Sprint Cadence</strong>
+          <span class="badge high">Confirmed</span>
+        </div>
+        <p class="text-sm text-secondary" style="margin:8px 0 0;">
+          The team resolved to keep 2-week agile sprint cycles rather than shifting to 3-week cycles.
+        </p>
+        <div class="source-quote" style="margin-top:8px;">
+          "Neel: Agreed, let's schedule that review session. Decision made: we stick to the 2-week sprint cadence."
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: PENDING QUESTIONS (FR-08) -->
+    <div id="tab-content-questions" style="display:none;">
+      <div class="card" style="border-left:4px solid var(--warn);">
+        <div class="flex-between">
+          <strong style="font-size:14px;">Unresolved: Server Parts Vendor Delay</strong>
+          <span class="badge low">Awaiting Answer</span>
+        </div>
+        <p class="text-sm text-secondary" style="margin:8px 0 0;">
+          Why has the hardware vendor shipment been stalled for over a week without tracking updates?
+        </p>
+        <div class="source-quote" style="margin-top:8px;">
+          "Smit: Someone should probably follow up with the vendor about the delayed shipment... it's been a week."
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-between mt-20">
+      <button class="ghost" onclick="navigateTo('step-transcript')">← Back to Transcript</button>
+      <button class="ghost" onclick="navigateTo('step-taskboard')">Jump to Task Board →</button>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 7: TASK BOARD                       -->
+  <!-- ========================================== -->
+  <section class="screen-view" id="step-taskboard">
+    <div class="flex-between" style="flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+      <div>
+        <p class="eyebrow">Arnav · Task Board & Approval Flow (FR-16, FR-17, FR-18)</p>
+        <h1>Shared Task Board</h1>
+        <p class="sub" style="margin-bottom:0;">Centralized repository for confirmed meeting tasks, assignees, and live status.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn text-sm" onclick="promptAddNewTask()">+ New Task</button>
+        <button class="primary text-sm" onclick="navigateTo('step-notifications')">Simulate WhatsApp Alerts 💬 →</button>
+      </div>
+    </div>
+
+    <!-- Filters & Search Bar (FR-19) -->
+    <div class="card" style="padding:12px 16px; margin-bottom:16px;">
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+        <div style="display:flex; gap:8px; align-items:center; flex:1; min-width:220px;">
+          <span style="font-size:13px; color:var(--text-muted);">🔍</span>
+          <input type="text" id="taskSearchInput" placeholder="Filter by keyword or owner..." oninput="filterBoardTasks()" style="padding:6px 10px; font-size:13px;">
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <label style="font-size:12px; color:var(--text-muted); margin:0;">Owner:</label>
+          <select id="boardFilterOwner" onchange="filterBoardTasks()" style="padding:4px 8px; font-size:12px; width:auto;">
+            <option value="ALL">All Owners</option>
+            <option value="John">John</option>
+            <option value="Priya">Priya</option>
+            <option value="Arnav">Arnav</option>
+            <option value="Smit">Smit</option>
+            <option value="Neel">Neel</option>
+          </select>
+
+          <label style="font-size:12px; color:var(--text-muted); margin:0;">Priority:</label>
+          <select id="boardFilterPriority" onchange="filterBoardTasks()" style="padding:4px 8px; font-size:12px; width:auto;">
+            <option value="ALL">All Priorities</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- KANBAN BOARD COLUMNS (FR-17) -->
+    <div class="kanban-grid">
+      <!-- To Do -->
+      <div class="kanban-col" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'To Do')">
+        <div class="kanban-header">
+          <span class="kanban-title">To Do</span>
+          <span class="kanban-count" id="count-todo">0</span>
+        </div>
+        <div class="kanban-tasks" id="col-todo"></div>
+      </div>
+
+      <!-- In Progress -->
+      <div class="kanban-col" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'In Progress')">
+        <div class="kanban-header">
+          <span class="kanban-title">In Progress</span>
+          <span class="kanban-count" id="count-inprogress">0</span>
+        </div>
+        <div class="kanban-tasks" id="col-inprogress"></div>
+      </div>
+
+      <!-- Blocked -->
+      <div class="kanban-col" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'Blocked')">
+        <div class="kanban-header">
+          <span class="kanban-title" style="color:var(--danger-text);">Blocked</span>
+          <span class="kanban-count" id="count-blocked">0</span>
+        </div>
+        <div class="kanban-tasks" id="col-blocked"></div>
+      </div>
+
+      <!-- Completed -->
+      <div class="kanban-col" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'Completed')">
+        <div class="kanban-header">
+          <span class="kanban-title" style="color:var(--accent-text);">Completed</span>
+          <span class="kanban-count" id="count-completed">0</span>
+        </div>
+        <div class="kanban-tasks" id="col-completed"></div>
+      </div>
+    </div>
+
+    <div class="flex-between mt-20">
+      <button class="ghost" onclick="navigateTo('step-review')">← Back to AI Review</button>
+      <button class="primary" onclick="navigateTo('step-notifications')">Proceed to Notification Simulation →</button>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 8: NOTIFICATION SIMULATION          -->
+  <!-- ========================================== -->
+  <section class="screen-view" id="step-notifications">
+    <p class="eyebrow">Arnav · Follow-up & Notifications (FR-20, FR-21, FR-22)</p>
+    <h1>Automated Reminders & Notifications</h1>
+    <p class="sub">Student teams lose action items in chat noise. Validate multi-channel ping behavior.</p>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; align-items:start;">
+      <!-- Left: Interactive Notification Controls & Audit Log -->
+      <div>
+        <div class="card">
+          <h3 class="card-title" style="margin-bottom:12px;">Trigger Simulated Pings</h3>
+          <p class="text-sm text-secondary" style="margin-bottom:16px;">
+            Test how assignees receive real-time notifications when tasks are extracted or approach deadlines.
+          </p>
+
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button class="btn" onclick="triggerNotification('assign', 'John', 'Prepare quarterly report for board meeting', 'Sept 30')">
+              📱 WhatsApp: New Task Assignment (John)
+            </button>
+            <button class="btn" onclick="triggerNotification('reminder', 'Priya', 'Share updated onboarding doc with new hires', 'Oct 3')">
+              ⏰ WhatsApp: 24h Deadline Reminder (Priya)
+            </button>
+            <button class="btn" onclick="triggerNotification('overdue', 'Arnav', 'Schedule design review for dashboard revamp', 'Overdue')">
+              🚨 WhatsApp: Overdue Alert (Arnav)
+            </button>
+          </div>
+        </div>
+
+        <!-- Notification History Log -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Notification Audit Log</h3>
+            <span class="badge high">Automated</span>
+          </div>
+          <div id="notifAuditLog" style="font-size:12px; display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;">
+            <div style="padding:6px 8px; border-left:3px solid var(--whatsapp-green); background:var(--bg); border-radius:4px;">
+              <strong>WhatsApp Dispatched:</strong> John assigned "Prepare quarterly report" · <em>Delivered 10:04 AM</em>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Phone Simulator (WhatsApp UI) -->
+      <div>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-header">
+              <div style="width:30px; height:30px; border-radius:50%; background:var(--whatsapp-green); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:#fff;">
+                ⚡
+              </div>
+              <div style="flex:1;">
+                <div style="font-weight:600; line-height:1.2;">ActionPulse Bot</div>
+                <div style="font-size:11px; opacity:0.8;">Automated Meeting Assistant</div>
+              </div>
+            </div>
+
+            <div class="chat-body" id="whatsappChatBody">
+              <div class="chat-bubble">
+                👋 Hello <strong>John</strong>! You were assigned an action item from <strong>Weekly Engineering Sync</strong>:
+                <br><br>
+                📌 <strong>Task:</strong> Prepare the quarterly report for the board meeting<br>
+                ⏰ <strong>Deadline:</strong> Sept 30, 2026<br>
+                🔴 <strong>Priority:</strong> High
+                <br><br>
+                Reply <em>DONE</em> once finished or view board: <span style="color:#0066cc; text-decoration:underline;">actionpulse.app/t/101</span>
+                <div class="chat-time">10:02 AM · Sent via WhatsApp API</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:10px;">
+          Validating FR-22: WhatsApp automated reminder delivery to prevent missed tasks.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex-between mt-20">
+      <button class="ghost" onclick="navigateTo('step-taskboard')">← Back to Task Board</button>
+      <button class="primary" onclick="restartDemo()">🔄 Restart Prototype Walkthrough</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- BOTTOM INSPECTOR DRAWER (Requirements & Team Alignment) -->
+<div class="bottom-inspector" id="bottomInspector">
+  <div class="inspector-bar" onclick="toggleInspector()">
+    <span style="font-weight:600;">📋 Requirements Alignment & Stakeholder Guide (Click to expand)</span>
+    <span id="inspectorArrow" style="font-size:14px;">▲</span>
+  </div>
+  <div class="inspector-content">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+      <div>
+        <h4 style="margin:0 0 6px;">🎯 Purpose of this Throw-Away Prototype</h4>
+        <p style="color:var(--text-secondary); margin:0 0 10px; font-size:12px; line-height:1.4;">
+          Throw-away prototyping is intended to clarify user requirements and validate workflows with stakeholders before committing to architecture, production DBs, or complex LLM fine-tuning. It will be discarded once requirements are confirmed.
+        </p>
+        <h4 style="margin:8px 0 4px;">👥 Team Responsibilities:</h4>
+        <ul style="margin:0; padding-left:18px; font-size:12px; color:var(--text-secondary);">
+          <li><strong>Neel:</strong> Overall flow, stepper architecture, requirements alignment (FR-01 to FR-24).</li>
+          <li><strong>Kirtan:</strong> Meeting creation (FR-02) and transcript input screens (FR-01, FR-24).</li>
+          <li><strong>Smit:</strong> AI extraction review interface, uncertainty/confidence handling (FR-03 to FR-15).</li>
+          <li><strong>Arnav:</strong> Task board status management (FR-16 to FR-19), approval flow, notifications (FR-20 to FR-22).</li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 style="margin:0 0 6px;">💡 Stakeholder Validation Questions to Ask:</h4>
+        <ol style="margin:0; padding-left:18px; font-size:12px; color:var(--text-secondary);">
+          <li>Do users prefer reviewing all tasks one-by-one or using "Approve All High Confidence"?</li>
+          <li>Is the low-confidence warning clear enough when an owner or deadline is missing?</li>
+          <li>Should WhatsApp alerts be sent immediately upon approval, or batched as a daily digest?</li>
+          <li>Are key decisions and unresolved questions useful alongside action items?</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+// ==========================================
+// PROTOTYPE STATE & DATA
+// ==========================================
+
+const FR_MAPPING = {
+  'step-login': ['Security & Persona Roles', 'Admin & Member Access'],
+  'step-dashboard': ['FR-02: Meeting Records', 'FR-16: Centralized Overview', 'FR-18: Progress Tracking'],
+  'step-create-meeting': ['FR-02: Meeting Record Creation', 'FR-04: Attendee Entity Association'],
+  'step-transcript': ['FR-01: Meeting Transcript Input', 'FR-24: Transcript Access'],
+  'step-processing': ['FR-03: Action Extraction', 'FR-04: Owner Resolution', 'FR-05: Deadline Detection', 'FR-10: Uncertainty Detection'],
+  'step-review': ['FR-03 to FR-06: Task Extraction', 'FR-07: Decisions', 'FR-08: Questions', 'FR-10: Confidence Check', 'FR-11: Human Review', 'FR-12 to FR-15: Editing'],
+  'step-taskboard': ['FR-16: Shared Task Board', 'FR-17: Status Management', 'FR-18: Progress Tracking', 'FR-19: Search & Filtering'],
+  'step-notifications': ['FR-20: Deadline Reminders', 'FR-21: Overdue Alerts', 'FR-22: WhatsApp / Multi-Channel Notifications']
+};
+
+let currentStep = 'step-login';
+let currentUser = { name: 'Neel', role: 'Project Lead', initial: 'N' };
+
+// Initial Extracted Items for Review (Smit's component data)
+let reviewItems = [
+  {
+    id: 1,
+    text: "Prepare the quarterly report for the board meeting",
+    owner: "John",
+    deadline: "Sept 30",
+    priority: "High",
+    confidence: "high",
+    source: "“John, can you pull together the quarterly report for the board meeting? It should be completely ready by Sept 30.”",
+    status: 'pending' // pending | approved | rejected
+  },
+  {
+    id: 2,
+    text: "Follow up with the vendor about the delayed shipment",
+    owner: "",
+    deadline: "",
+    priority: "Medium",
+    confidence: "low",
+    source: "“Someone should probably follow up with the vendor about the delayed shipment... it's been a week.” — no owner or date stated",
+    status: 'pending'
+  },
+  {
+    id: 3,
+    text: "Share the updated onboarding doc with new hires",
+    owner: "Priya",
+    deadline: "Oct 3",
+    priority: "Low",
+    confidence: "high",
+    source: "“Priya, once it's proofread, please share the updated onboarding doc with new hires by Oct 3.”",
+    status: 'pending'
+  },
+  {
+    id: 4,
+    text: "Schedule a design review for the dashboard revamp",
+    owner: "Arnav",
+    deadline: "",
+    priority: "Medium",
+    confidence: "low",
+    source: "“Also, we need a design review at some point for the dashboard revamp that I'm leading.” — no date stated",
+    status: 'pending'
+  }
+];
+
+// Kanban Board Tasks (Arnav's component data)
+let boardTasks = [
+  {
+    id: 101,
+    title: "Draft sprint backlog for sprint 2",
+    owner: "Neel",
+    priority: "High",
+    deadline: "Sept 25",
+    status: "Completed",
+    meeting: "Sprint 1 Retrospective"
+  },
+  {
+    id: 102,
+    title: "Setup CI/CD GitHub action workflow",
+    owner: "Kirtan",
+    priority: "Medium",
+    deadline: "Sept 28",
+    status: "In Progress",
+    meeting: "Dev Ops Alignment"
+  },
+  {
+    id: 103,
+    title: "Collect stakeholder survey feedback",
+    owner: "Smit",
+    priority: "High",
+    deadline: "Sept 27",
+    status: "To Do",
+    meeting: "Stakeholder Check-in"
+  },
+  {
+    id: 104,
+    title: "Design high-fidelity Figma mockups",
+    owner: "Arnav",
+    priority: "Medium",
+    deadline: "Oct 02",
+    status: "To Do",
+    meeting: "UI Planning"
+  }
+];
+
+// Sample Presets for Kirtan's Transcript Screen
+const TRANSCRIPT_PRESETS = {
+  sprint: `Neel: Alright team, let's go over our deliverables for this upcoming milestone.
+John: I have the quarterly performance numbers almost calculated.
+Neel: Great. John, can you pull together the quarterly report for the board meeting? It should be completely ready by Sept 30.
+John: Sure, I will have the draft ready by Sept 30 and email it.
+Priya: Regarding onboarding, the revised documentation draft is ready.
+Neel: Priya, once it's proofread, please share the updated onboarding doc with new hires by Oct 3.
+Priya: Got it, Oct 3 deadline noted.
+Smit: Someone should probably follow up with the vendor about the delayed shipment of server parts, it's been a week and no update.
+Neel: Good catch. Let's make sure that vendor follow-up happens soon.
+Arnav: Also, we need a design review at some point for the dashboard revamp that I'm leading.
+Neel: Agreed, let's schedule that review session. Decision made: we stick to the 2-week sprint cadence.`,
+
+  hackathon: `Kirtan: We need everything locked down for TechFest hackathon in two weeks.
+Arnav: I will finalize the sponsorship banner designs and send them for printing by Oct 5th.
+Priya: I'll coordinate catering and book the food stalls before Wednesday.
+John: Can someone take care of the WiFi venue access permissions?
+Neel: I'll talk to the campus IT department about high-bandwidth guest WiFi by Friday.`,
+
+  ambiguous: `Member: We really should fix the login latency issue soon.
+Lead: Yes, let's look into database indexing sometime next month.
+Member: Also, someone ought to update the README on GitHub whenever there's free time.`
+};
+
+// ==========================================
+// NAVIGATION & STEPPER (Neel's area)
+// ==========================================
+
+function navigateTo(stepId) {
+  currentStep = stepId;
+  
+  // Toggle active screen
+  document.querySelectorAll('.screen-view').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(stepId);
+  if (target) target.classList.add('active');
+
+  // Update Stepper Nav
+  const stepNodes = document.querySelectorAll('.step-node');
+  let passedCurrent = false;
+  stepNodes.forEach(node => {
+    const s = node.getAttribute('data-step');
+    node.classList.remove('active', 'completed');
+    if (s === stepId) {
+      node.classList.add('active');
+      passedCurrent = true;
+    } else if (!passedCurrent) {
+      node.classList.add('completed');
+    }
+  });
+
+  // Update FR tags
+  updateFrBar(stepId);
+
+  // Screen specific hooks
+  if (stepId === 'step-review') {
+    renderReviewScreen();
+  } else if (stepId === 'step-taskboard') {
+    renderTaskBoard();
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateFrBar(stepId) {
+  const list = document.getElementById('frListTags');
+  const tags = FR_MAPPING[stepId] || [];
+  list.innerHTML = tags.map(t => `<span class="fr-tag">${t}</span>`).join(' ');
+}
+
+// User Persona Switcher
+function selectPersona(name, role, initial) {
+  currentUser = { name, role, initial };
+  document.getElementById('navAvatar').textContent = initial;
+  document.getElementById('navUserName').textContent = `${name} (${role})`;
+  document.getElementById('loginEmail').value = `${name.toLowerCase()}@actionpulse.test`;
+  showToast(`Switched persona to ${name} (${role})`);
+}
+
+function cycleUserRole() {
+  const roles = [
+    { name: 'Neel', role: 'Project Lead', initial: 'N' },
+    { name: 'Kirtan', role: 'Meeting Organizer', initial: 'K' },
+    { name: 'Smit', role: 'Reviewer', initial: 'S' },
+    { name: 'Arnav', role: 'Task Assignee', initial: 'A' }
+  ];
+  const idx = roles.findIndex(r => r.name === currentUser.name);
+  const next = roles[(idx + 1) % roles.length];
+  selectPersona(next.name, next.role, next.initial);
+}
+
+function handleLoginSubmit(e) {
+  e.preventDefault();
+  document.getElementById('dashGreeting').textContent = `Welcome, ${currentUser.name}!`;
+  showToast(`Logged in successfully as ${currentUser.name}`);
+  navigateTo('step-dashboard');
+}
+
+// ==========================================
+// MEETING CREATION & TRANSCRIPT (Kirtan's area)
+// ==========================================
+
+function handleCreateMeetingSubmit(e) {
+  e.preventDefault();
+  const title = document.getElementById('meetingTitle').value;
+  document.getElementById('revMeetingName').textContent = title;
+  showToast('Meeting record created (FR-02)');
+  navigateTo('step-transcript');
+}
+
+function loadTranscriptPreset(presetKey) {
+  const text = TRANSCRIPT_PRESETS[presetKey];
+  const area = document.getElementById('transcriptArea');
+  area.value = text;
+  updateWordCount();
+  showToast(`Loaded preset: ${presetKey}`);
+}
+
+function updateWordCount() {
+  const area = document.getElementById('transcriptArea');
+  const words = area.value.trim().split(/\s+/).filter(Boolean).length;
+  document.getElementById('wordCountLabel').textContent = `${words} words`;
+}
+document.getElementById('transcriptArea').addEventListener('input', updateWordCount);
+
+// ==========================================
+// AI PROCESSING SIMULATION (Neel / Smit transition)
+// ==========================================
+
+let processingTimeout = null;
+
+function startAIProcessing() {
+  navigateTo('step-processing');
+  
+  const step1 = document.getElementById('pstep-1');
+  const step2 = document.getElementById('pstep-2');
+  const step3 = document.getElementById('pstep-3');
+  const step4 = document.getElementById('pstep-4');
+
+  // Reset steps
+  [step1, step2, step3, step4].forEach(s => {
+    s.className = 'pipe-step';
+  });
+  step1.className = 'pipe-step active';
+
+  processingTimeout = setTimeout(() => {
+    step1.className = 'pipe-step done';
+    step2.className = 'pipe-step active';
+    
+    processingTimeout = setTimeout(() => {
+      step2.className = 'pipe-step done';
+      step3.className = 'pipe-step active';
+      
+      processingTimeout = setTimeout(() => {
+        step3.className = 'pipe-step done';
+        step4.className = 'pipe-step active';
+        
+        processingTimeout = setTimeout(() => {
+          step4.className = 'pipe-step done';
+          showToast('AI Action extraction complete!');
+          navigateTo('step-review');
+        }, 400);
+      }, 400);
+    }, 400);
+  }, 400);
+}
+
+function skipProcessingToReview() {
+  if (processingTimeout) clearTimeout(processingTimeout);
+  navigateTo('step-review');
+}
+
+// ==========================================
+// AI RESULTS & REVIEW (Smit's area)
+// ==========================================
+
+function switchReviewTab(tab) {
+  document.querySelectorAll('.review-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`tab-btn-${tab}`).classList.add('active');
+
+  document.getElementById('tab-content-actions').style.display = tab === 'actions' ? 'block' : 'none';
+  document.getElementById('tab-content-decisions').style.display = tab === 'decisions' ? 'block' : 'none';
+  document.getElementById('tab-content-questions').style.display = tab === 'questions' ? 'block' : 'none';
+}
+
+function renderReviewScreen() {
+  const pendingContainer = document.getElementById('pending-list');
+  const approvedContainer = document.getElementById('approved-list');
+  const rejectedContainer = document.getElementById('rejected-list');
+  const emptyMsg = document.getElementById('empty-msg');
+  const continueBtn = document.getElementById('continue-btn');
+
+  pendingContainer.innerHTML = '';
+  approvedContainer.innerHTML = '';
+  rejectedContainer.innerHTML = '';
+
+  const pending = reviewItems.filter(i => i.status === 'pending');
+  const approved = reviewItems.filter(i => i.status === 'approved');
+  const rejected = reviewItems.filter(i => i.status === 'rejected');
+
+  document.getElementById('pending-count').textContent = pending.length;
+  document.getElementById('approved-count-label').textContent = approved.length;
+  document.getElementById('rejected-count-label').textContent = rejected.length;
+
+  emptyMsg.style.display = pending.length === 0 ? 'block' : 'none';
+  
+  continueBtn.disabled = approved.length === 0;
+  continueBtn.textContent = approved.length > 0 
+    ? `Send ${approved.length} Approved Items to Task Board →` 
+    : 'Approve at least 1 item to proceed';
+
+  // Render Pending Cards
+  pending.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'review-item-card';
+    card.id = `rev-card-${item.id}`;
+
+    const isLow = item.confidence === 'low' || !item.owner || !item.deadline;
+
+    card.innerHTML = `
+      <div class="card-header" style="align-items:flex-start; margin-bottom:8px;">
+        <h4 style="margin:0; font-size:15px; flex:1;" contenteditable="true" onblur="updateItemText(${item.id}, this.innerText)">
+          ${item.text}
+        </h4>
+        <span class="badge ${isLow ? 'low' : 'high'}" style="margin-left:12px; flex-shrink:0;">
+          ${isLow ? '⚠️ Needs Review / Low Conf' : '✓ High Confidence'}
+        </span>
+      </div>
+
+      <div class="fields-grid">
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:11px; color:var(--text-muted);">Owner (FR-04)</label>
+          <input type="text" value="${item.owner}" placeholder="Unassigned ⚠️" 
+                 style="font-size:13px; padding:6px 8px; border-color:${!item.owner ? 'var(--warn)' : 'var(--border)'};"
+                 onchange="updateItemField(${item.id}, 'owner', this.value)">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:11px; color:var(--text-muted);">Deadline (FR-05)</label>
+          <input type="text" value="${item.deadline}" placeholder="No date set ⚠️" 
+                 style="font-size:13px; padding:6px 8px; border-color:${!item.deadline ? 'var(--warn)' : 'var(--border)'};"
+                 onchange="updateItemField(${item.id}, 'deadline', this.value)">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label style="font-size:11px; color:var(--text-muted);">Priority (FR-06)</label>
+          <select style="font-size:13px; padding:6px 8px;" onchange="updateItemField(${item.id}, 'priority', this.value)">
+            <option value="High" ${item.priority === 'High' ? 'selected' : ''}>High</option>
+            <option value="Medium" ${item.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+            <option value="Low" ${item.priority === 'Low' ? 'selected' : ''}>Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="source-quote">${item.source}</div>
+
+      <div class="flex-between">
+        <div style="display:flex; gap:8px;">
+          <button class="approve" onclick="resolveReviewItem(${item.id}, 'approved')">✓ Approve</button>
+          <button class="reject" onclick="resolveReviewItem(${item.id}, 'rejected')">✕ Reject</button>
+        </div>
+        <span class="text-sm text-muted">Click text to edit inline (FR-11)</span>
+      </div>
+    `;
+    pendingContainer.appendChild(card);
+  });
+
+  // Render Approved Section
+  document.getElementById('approved-section').style.display = approved.length > 0 ? 'block' : 'none';
+  approved.forEach(item => {
+    const row = document.createElement('div');
+    row.style.cssText = 'background:var(--accent-bg); color:var(--accent-text); border:1px solid var(--accent); padding:10px 14px; border-radius:6px; margin-bottom:6px; font-size:13px; display:flex; justify-content:space-between; align-items:center;';
+    row.innerHTML = `
+      <span><strong>${item.text}</strong></span>
+      <span style="font-size:12px; opacity:0.85;">${item.owner || 'Unassigned'} · ${item.deadline || 'No date'} · ${item.priority}</span>
+    `;
+    approvedContainer.appendChild(row);
+  });
+
+  // Render Rejected Section
+  document.getElementById('rejected-section').style.display = rejected.length > 0 ? 'block' : 'none';
+  rejected.forEach(item => {
+    const row = document.createElement('div');
+    row.style.cssText = 'background:var(--danger-bg); color:var(--danger-text); border:1px solid var(--danger); padding:8px 12px; border-radius:6px; margin-bottom:6px; font-size:13px; display:flex; justify-content:space-between; align-items:center; opacity:0.8;';
+    row.innerHTML = `
+      <span>${item.text}</span>
+      <span style="font-size:12px;">Rejected</span>
+    `;
+    rejectedContainer.appendChild(row);
+  });
+}
+
+function updateItemText(id, text) {
+  const item = reviewItems.find(i => i.id === id);
+  if (item) item.text = text;
+}
+
+function updateItemField(id, field, val) {
+  const item = reviewItems.find(i => i.id === id);
+  if (item) {
+    item[field] = val;
+    renderReviewScreen();
+  }
+}
+
+function resolveReviewItem(id, outcome) {
+  const card = document.getElementById(`rev-card-${id}`);
+  if (card) card.classList.add('removing');
+
+  setTimeout(() => {
+    const item = reviewItems.find(i => i.id === id);
+    if (item) {
+      item.status = outcome;
+      showToast(outcome === 'approved' ? `Approved: "${item.text.slice(0, 24)}..."` : 'Action rejected');
+      renderReviewScreen();
+    }
+  }, 200);
+}
+
+function approveAllHighConfidence() {
+  reviewItems.forEach(item => {
+    if (item.status === 'pending' && item.confidence === 'high' && item.owner && item.deadline) {
+      item.status = 'approved';
+    }
+  });
+  showToast('Approved all high confidence items');
+  renderReviewScreen();
+}
+
+function promptAddNewTask() {
+  const text = prompt("Enter custom action item description:");
+  if (!text) return;
+  const owner = prompt("Assignee name (John, Priya, Arnav, Smit, Neel):") || "Unassigned";
+  const deadline = prompt("Deadline (e.g. Oct 5):") || "TBD";
+
+  const newItem = {
+    id: Date.now(),
+    text: text,
+    owner: owner,
+    deadline: deadline,
+    priority: "Medium",
+    confidence: "high",
+    source: "Manual entry by reviewer (FR-11)",
+    status: currentStep === 'step-taskboard' ? 'board' : 'approved'
+  };
+
+  if (currentStep === 'step-taskboard') {
+    boardTasks.push({
+      id: Date.now(),
+      title: text,
+      owner: owner,
+      priority: "Medium",
+      deadline: deadline,
+      status: "To Do",
+      meeting: "Manual Entry"
+    });
+    renderTaskBoard();
+    showToast(`Added task to board for ${owner}`);
+  } else {
+    reviewItems.push(newItem);
+    renderReviewScreen();
+    showToast(`Added manual action item`);
+  }
+}
+
+function sendApprovedToTaskBoard() {
+  const approved = reviewItems.filter(i => i.status === 'approved');
+  if (approved.length === 0) return;
+
+  approved.forEach(item => {
+    // Avoid duplicate sync
+    if (!boardTasks.some(b => b.title === item.text)) {
+      boardTasks.push({
+        id: Date.now() + Math.random(),
+        title: item.text,
+        owner: item.owner || 'Unassigned',
+        priority: item.priority || 'Medium',
+        deadline: item.deadline || 'No date',
+        status: 'To Do',
+        meeting: document.getElementById('meetingTitle').value || 'Weekly Engineering Sync'
+      });
+    }
+  });
+
+  showToast(`Synced ${approved.length} tasks to shared board (FR-16)`);
+  navigateTo('step-taskboard');
+}
+
+// ==========================================
+// TASK BOARD & APPROVAL FLOW (Arnav's area)
+// ==========================================
+
+function renderTaskBoard() {
+  const colTodo = document.getElementById('col-todo');
+  const colInprog = document.getElementById('col-inprogress');
+  const colBlocked = document.getElementById('col-blocked');
+  const colComp = document.getElementById('col-completed');
+
+  [colTodo, colInprog, colBlocked, colComp].forEach(c => c.innerHTML = '');
+
+  const q = (document.getElementById('taskSearchInput').value || '').toLowerCase();
+  const filterOwner = document.getElementById('boardFilterOwner').value;
+  const filterPriority = document.getElementById('boardFilterPriority').value;
+
+  const filtered = boardTasks.filter(t => {
+    const matchQ = t.title.toLowerCase().includes(q) || t.owner.toLowerCase().includes(q);
+    const matchOwner = filterOwner === 'ALL' || t.owner.toLowerCase() === filterOwner.toLowerCase();
+    const matchPri = filterPriority === 'ALL' || t.priority.toLowerCase() === filterPriority.toLowerCase();
+    return matchQ && matchOwner && matchPri;
+  });
+
+  let counts = { 'To Do': 0, 'In Progress': 0, 'Blocked': 0, 'Completed': 0 };
+
+  filtered.forEach(t => {
+    counts[t.status] = (counts[t.status] || 0) + 1;
+    const card = createTaskCard(t);
+    if (t.status === 'To Do') colTodo.appendChild(card);
+    else if (t.status === 'In Progress') colInprog.appendChild(card);
+    else if (t.status === 'Blocked') colBlocked.appendChild(card);
+    else if (t.status === 'Completed') colComp.appendChild(card);
+  });
+
+  document.getElementById('count-todo').textContent = counts['To Do'] || 0;
+  document.getElementById('count-inprogress').textContent = counts['In Progress'] || 0;
+  document.getElementById('count-blocked').textContent = counts['Blocked'] || 0;
+  document.getElementById('count-completed').textContent = counts['Completed'] || 0;
+  document.getElementById('dashActiveTasksCount').textContent = boardTasks.length;
+}
+
+function createTaskCard(task) {
+  const el = document.createElement('div');
+  el.className = 'task-card';
+  el.draggable = true;
+  el.ondragstart = (e) => handleDragStart(e, task.id);
+
+  let priClass = 'priority-medium';
+  if (task.priority === 'High') priClass = 'priority-high';
+  else if (task.priority === 'Low') priClass = 'priority-low';
+
+  el.innerHTML = `
+    <div class="flex-between" style="margin-bottom:6px;">
+      <span class="badge ${priClass}">${task.priority}</span>
+      <select style="font-size:11px; padding:2px 4px; border:none; background:transparent; cursor:pointer;" 
+              onchange="changeTaskStatus(${task.id}, this.value)">
+        <option value="To Do" ${task.status === 'To Do' ? 'selected' : ''}>To Do</option>
+        <option value="In Progress" ${task.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+        <option value="Blocked" ${task.status === 'Blocked' ? 'selected' : ''}>Blocked</option>
+        <option value="Completed" ${task.status === 'Completed' ? 'selected' : ''}>Completed</option>
+      </select>
+    </div>
+
+    <div style="font-size:13px; font-weight:600; line-height:1.3; margin-bottom:8px;">${task.title}</div>
+
+    <div style="font-size:11px; color:var(--text-muted); margin-bottom:6px;">
+      📍 ${task.meeting || 'Engineering Sync'}
+    </div>
+
+    <div class="task-meta">
+      <span style="font-weight:500;">👤 ${task.owner}</span>
+      <span>⏰ ${task.deadline}</span>
+    </div>
+
+    <div style="margin-top:8px; padding-top:6px; border-top:1px dashed var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <button class="ghost text-sm" style="padding:2px 6px; font-size:11px; color:var(--whatsapp-dark);" 
+              onclick="triggerNotification('assign', '${task.owner}', '${task.title.replace(/'/g, "\\'")}', '${task.deadline}')">
+        💬 WhatsApp Ping
+      </button>
+      <span style="font-size:10px; color:var(--text-muted); cursor:pointer;" onclick="deleteBoardTask(${task.id})">🗑 Delete</span>
+    </div>
+  `;
+  return el;
+}
+
+function filterBoardTasks() {
+  renderTaskBoard();
+}
+
+function changeTaskStatus(id, newStatus) {
+  const task = boardTasks.find(t => t.id === id);
+  if (task) {
+    task.status = newStatus;
+    showToast(`Task moved to "${newStatus}"`);
+    renderTaskBoard();
+  }
+}
+
+function deleteBoardTask(id) {
+  boardTasks = boardTasks.filter(t => t.id !== id);
+  renderTaskBoard();
+  showToast('Task removed from board');
+}
+
+// Drag & Drop
+let draggedTaskId = null;
+function handleDragStart(e, id) {
+  draggedTaskId = id;
+}
+function allowDrop(e) {
+  e.preventDefault();
+}
+function handleDrop(e, status) {
+  e.preventDefault();
+  if (draggedTaskId !== null) {
+    changeTaskStatus(draggedTaskId, status);
+    draggedTaskId = null;
+  }
+}
+
+// ==========================================
+// NOTIFICATIONS SIMULATION (Arnav's area)
+// ==========================================
+
+function triggerNotification(type, owner, taskTitle, deadline) {
+  const chatBody = document.getElementById('whatsappChatBody');
+  const auditLog = document.getElementById('notifAuditLog');
+
+  let bubbleHtml = '';
+  let logText = '';
+
+  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  if (type === 'assign') {
+    bubbleHtml = `
+      <div class="chat-bubble">
+        👋 Hello <strong>${owner}</strong>! You were assigned an action item from <strong>Weekly Engineering Sync</strong>:
+        <br><br>
+        📌 <strong>Task:</strong> ${taskTitle}<br>
+        ⏰ <strong>Deadline:</strong> ${deadline}<br>
+        🔴 <strong>Priority:</strong> High
+        <br><br>
+        Reply <em>DONE</em> once finished or view board: <span style="color:#0066cc; text-decoration:underline;">actionpulse.app/t/101</span>
+        <div class="chat-time">${now} · Sent via WhatsApp API</div>
+      </div>
+    `;
+    logText = `WhatsApp Dispatched to ${owner}: New assignment "${taskTitle}" (${now})`;
+  } else if (type === 'reminder') {
+    bubbleHtml = `
+      <div class="chat-bubble" style="background:#FFFDEB;">
+        ⏰ <strong>Upcoming Deadline Reminder!</strong><br>
+        Hi <strong>${owner}</strong>, "${taskTitle}" is due in <strong>24 hours</strong> (${deadline}).
+        <br><br>
+        Need more time? Reply <em>EXTEND</em> or <em>DONE</em>.
+        <div class="chat-time">${now} · Automated Reminder</div>
+      </div>
+    `;
+    logText = `24h Reminder Alert sent to ${owner} (${now})`;
+  } else if (type === 'overdue') {
+    bubbleHtml = `
+      <div class="chat-bubble" style="background:#FFF1F1;">
+        🚨 <strong>Overdue Alert</strong><br>
+        Hi <strong>${owner}</strong>, the task "${taskTitle}" is past its deadline (${deadline}).
+        <br><br>
+        Please update your progress or notify project lead Neel.
+        <div class="chat-time">${now} · Escalation Ping</div>
+      </div>
+    `;
+    logText = `Overdue alert escalated for ${owner} (${now})`;
+  }
+
+  // Prepend new bubble to chat
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = bubbleHtml;
+  chatBody.appendChild(wrapper.firstElementChild);
+  chatBody.scrollTop = chatBody.scrollHeight;
+
+  // Add to audit log
+  const logItem = document.createElement('div');
+  logItem.style.cssText = 'padding:6px 8px; border-left:3px solid var(--whatsapp-green); background:var(--bg); border-radius:4px;';
+  logItem.innerHTML = `<strong>Sent:</strong> ${logText}`;
+  auditLog.prepend(logItem);
+
+  showToast(`Simulated WhatsApp alert dispatched to ${owner}`);
+  if (currentStep !== 'step-notifications') {
+    navigateTo('step-notifications');
+  }
+}
+
+// ==========================================
+// UTILITIES & THEME
+// ==========================================
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').textContent = next === 'dark' ? '☀️' : '🌙';
+  showToast(`Switched to ${next} theme`);
+}
+
+function toggleInspector() {
+  const insp = document.getElementById('bottomInspector');
+  insp.classList.toggle('expanded');
+  const isExp = insp.classList.contains('expanded');
+  document.getElementById('inspectorArrow').textContent = isExp ? '▼' : '▲';
+}
+
+function showToast(message) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `<span>⚡</span> <span>${message}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    setTimeout(() => toast.remove(), 250);
+  }, 2800);
+}
+
+function restartDemo() {
+  reviewItems.forEach(i => i.status = 'pending');
+  showToast('Reset prototype state to initial demo');
+  navigateTo('step-login');
+}
+
+// Initial Boot
+navigateTo('step-login');
+</script>
+</body>
+</html>
